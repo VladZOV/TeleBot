@@ -10,10 +10,32 @@ bot = telebot.TeleBot(TOKEN)
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    item = types.KeyboardButton("Начать викторину")
-    markup.add(item)
-    bot.reply_to(message, "Добро пожаловать на викторину от Московского зоопарка!"
-                          "\nГотовы узнать свое тотемное животное?", reply_markup=markup)
+    item1 = types.KeyboardButton("Начать викторину")
+    item2 = types.KeyboardButton("О зоопарке")
+    markup.add(item1, item2)
+    bot.reply_to(message, "Добро пожаловать в чат-бот от Московского зоопарка!\n"
+                          "Предлагаем вам ознакомиться и информацией о нашем зоопарке или же сразу перейти к викторине:"
+                          " 'Узнай свое тотемное животное'", reply_markup=markup)
+
+
+@bot.message_handler(func=lambda message: message.text == "О зоопарке")
+def zoo_info(message):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add(types.KeyboardButton("Вернуться в главное меню"))
+    bot.send_message(message.chat.id, "Основан в 1864 году, что делает его одним из старейших зоопарков"
+                                      " в Европе.Расположен в центре Москвы, недалеко от станции метро 'Баррикадная'."
+                                      "Расположен в центре Москвы, недалеко от станции метро 'Баррикадная'."
+                                      "Занимает площадь около 21,5 гектара."
+                                      "В зоопарке содержится более 8000 животных, представляющих около 1000 видов фауны."
+                                      "Разделен на две территории - старую и новую, соединенные пешеходным мостом."
+                                      "Имеет несколько тематических зон, включая экзотариум, дом птиц, дом приматов "
+                                      "и другие."
+                                      "Участвует в международных программах по сохранению редких видов животных."
+                                      "Проводит образовательные программы и экскурсии для посетителей."
+                                      "Является популярным местом отдыха для москвичей и туристов."
+                                      "В 2014 году отметил свое 150-летие масштабной реконструкцией",
+                     reply_markup=markup)
+
 
 @bot.message_handler(func=lambda message: message.text == "Начать викторину")
 def start_quiz(message):
@@ -169,7 +191,7 @@ def send_result(chat_id):
 def about_guardianship(message):
     bot.reply_to(message, "Программа опеки позволяет вам стать опекуном животного в нашем зоопарке."
                           "Вы можете помочь в уходе за животным, обеспечении его кормом и поддержании условий обитания."
-                          " Хотите узнать больше или стать опекуном?")
+                          " Хотите узнать больше и стать опекуном?")
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(types.KeyboardButton("Стать опекуном"))
     markup.add(types.KeyboardButton("Вернуться в главное меню"))
@@ -182,6 +204,7 @@ def become_guardian(message):
     bot.send_message(message.chat.id, "Контакты сотрудника: @zoo_employee")   # Можно добавить контакты
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(types.KeyboardButton("Вернуться в главное меню"))
+    markup.add(types.KeyboardButton("Написать отзыв о боте"))
     bot.send_message(message.chat.id, "Выберите действие:", reply_markup=markup)
 
 
@@ -189,7 +212,6 @@ def become_guardian(message):
 def start_feedback(message):
     user_states[message.from_user.id] = 'waiting_for_feedback'
     bot.reply_to(message, "Пожалуйста, напишите ваш отзыв о боте:")
-
 
 @bot.message_handler(func=lambda message: user_states.get(message.from_user.id) == 'waiting_for_feedback')
 def process_feedback(message):
@@ -201,6 +223,10 @@ def process_feedback(message):
     bot.send_message(ADMIN_ID, f"Новый отзыв от @{username} (ID: {user_id}):\n\n{feedback}")
 
     bot.reply_to(message, "Спасибо за ваш отзыв! Мы ценим ваше мнение.")
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add(types.KeyboardButton("Узнать о программе опеки"))
+    markup.add(types.KeyboardButton("Вернуться в главное меню"))
+    bot.send_message(message.chat.id, "Выберите действие:", reply_markup=markup)
 
     # Сбрасываем состояние пользователя
     user_states.pop(message.from_user.id, None)
